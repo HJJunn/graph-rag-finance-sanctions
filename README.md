@@ -326,17 +326,6 @@ http://localhost:8000
 한국투자증권 제재 내역 알려줘
 ```
 
----
-
-# 🔎 디버그 로그
-
-```
-========== RETRIEVAL DEBUG ==========
-Query: 한국투자증권 제재 내역
-Retriever: ToolResult
-Docs: 5
-=====================================
-```
 
 ---
 
@@ -376,6 +365,9 @@ Citation learning
 
 https://huggingface.co/HJUNN/qwen2-7b-rag-ko-checkpoint-813
 
+데이터셋 저장소
+
+https://huggingface.co/datasets/HJUNN/Finance-Law-merge-rag-dataset
 ---
 
 # 🛠 기술 스택
