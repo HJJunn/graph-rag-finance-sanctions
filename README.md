@@ -1,23 +1,22 @@
-# GraphRAG 기반 금융 제재 분석 AI 시스템
+# 🧠 GraphRAG 기반 금융 제재 분석 AI 시스템
 
-## 프로젝트 소개
+금융기관 제재 데이터를 **그래프 기반 RAG 시스템**으로 분석하는 AI 챗봇 프로젝트입니다.
 
-본 프로젝트는 **금융기관 제재 데이터를 기반으로 질문에 답변하는 GraphRAG 시스템**입니다.
-Neo4j 그래프 데이터베이스를 활용하여 금융 제재 정보를 구조화하고, 다양한 Retriever를 결합한 **Agentic Retrieval 구조**를 통해 사용자 질문에 맞는 검색 방식을 자동으로 선택합니다.
+Neo4j 그래프 데이터베이스를 활용하여 금융 제재 데이터를 구조화하고, 다양한 Retriever를 결합한 **Agentic Retrieval 구조**를 통해 사용자 질문에 맞는 검색 전략을 자동으로 선택합니다.
 
-검색된 결과는 **파인튜닝된 한국어 LLM을 통해 최종 답변을 생성**하며, 답변에는 근거 문서에 대한 **citation(`[[ref]]`)**이 포함됩니다.
+검색된 결과는 **금융-법률 관련 RAG 학습 데이터를 파인튜닝된 한국어 LLM**을 통해 최종 답변을 생성하며, 답변에는 **근거 문서 citation(`[[ref]]`)**이 포함됩니다.
 
-또한, 검색에 사용된 노드들을 **그래프 시각화 형태로 확인할 수 있는 인터페이스**를 제공합니다.
+또한 검색 결과에 사용된 **그래프 노드들을 시각적으로 확인할 수 있는 인터페이스**도 제공합니다.
 
 ---
 
-# 주요 기능
+# 🚀 주요 기능
 
-### 1. Graph 기반 RAG 검색
+## 1️⃣ Graph 기반 RAG 검색
 
 Neo4j 그래프 데이터베이스를 기반으로 금융 제재 데이터를 구조화합니다.
 
-그래프 구조 예시
+그래프 구조
 
 ```
 Institution
@@ -35,26 +34,24 @@ Institution
                            Law
 ```
 
-이를 통해 다음과 같은 질문을 처리할 수 있습니다.
+이를 통해 다음과 같은 질의를 처리할 수 있습니다.
 
-* 특정 기관의 제재 내역
-* 특정 법규 위반 사례
-* 기관별 위반 통계
-* 법규별 위반 빈도
+- 특정 기관의 제재 내역 조회
+- 특정 법규 위반 사례 검색
+- 기관별 위반 통계 분석
+- 법규별 위반 빈도 분석
 
 ---
 
-### 2. Agentic Retrieval (Tool 기반 검색)
+# 🤖 Agentic Retrieval (Tool 기반 검색)
 
-사용자의 질문에 따라 LLM이 자동으로 검색 전략을 선택합니다.
+사용자의 질문을 분석하여 **LLM이 자동으로 적절한 Retriever를 선택**합니다.
 
-사용되는 Retriever
-
-| Retriever             | 역할                |
-| --------------------- | ----------------- |
-| VectorRetriever       | 위반 내용 기반 의미 검색    |
+| Retriever | 역할 |
+|---|---|
+| VectorRetriever | 위반 내용 기반 의미 검색 |
 | VectorCypherRetriever | 의미 검색 + 그래프 관계 조회 |
-| Text2CypherRetriever  | 통계 및 구조적 질의       |
+| Text2CypherRetriever | 통계 및 구조적 질의 |
 
 예시
 
@@ -72,9 +69,9 @@ Institution
 
 ---
 
-### 3. Query Rewrite
+# ✏️ Query Rewrite
 
-대화형 질문을 **독립적인 질문으로 재작성**합니다.
+대화형 질문을 **독립적인 질문으로 재작성**하여 Retrieval 성능을 향상시킵니다.
 
 예시
 
@@ -89,14 +86,20 @@ Rewrite →
 
 ---
 
-### 4. Finetuned LLM 답변 생성
+# 🧠 Finetuned LLM 기반 답변 생성
 
-검색된 결과는 **파인튜닝된 한국어 LLM**을 통해 답변을 생성합니다.
+검색된 결과는 **파인튜닝된 한국어 LLM**을 통해 최종 답변을 생성합니다.
 
-모델
+사용 모델
 
 ```
 HJUNN/qwen2-7b-rag-ko-checkpoint-813
+```
+
+모델 서빙
+
+```
+vLLM
 ```
 
 답변 예시
@@ -109,36 +112,47 @@ HJUNN/qwen2-7b-rag-ko-checkpoint-813
 
 ---
 
-### 5. Citation 기반 답변
+# 📚 Citation 기반 답변
 
-모든 답변에는 근거 문서가 표시됩니다.
+모든 답변에는 **근거 문서 citation**이 포함됩니다.
 
 ```
 [[ref1]]
 [[ref2]]
 ```
 
-이를 통해 **Hallucination을 최소화**합니다.
+이를 통해
+
+- Hallucination 최소화
+- 근거 기반 답변 제공
+
+이 가능합니다.
 
 ---
 
-### 6. Graph 시각화
+# 🕸 Graph 시각화
 
-검색 결과에 사용된 노드를 그래프 형태로 확인할 수 있습니다.
+검색에 사용된 그래프 노드를 **시각적으로 확인할 수 있습니다.**
 
-시각화 정보
+그래프 노드 유형
 
-* Institution
-* Case
-* ViolationCase
-* Law
-* Sanction
+- Institution
+- Case
+- ViolationCase
+- Law
+- Sanction
 
-프론트엔드는 **vis-network 기반 그래프 인터페이스**로 구현되어 있습니다.
+프론트엔드는
+
+```
+vis-network
+```
+
+기반으로 구현되었습니다.
 
 ---
 
-# 시스템 아키텍처
+# 🏗 시스템 아키텍처
 
 ```
 User
@@ -147,7 +161,7 @@ FastAPI API
  ↓
 Query Rewrite
  ↓
-ToolsRetriever
+ToolsRetriever (Agentic Retrieval)
  ├ Vector Retriever
  ├ VectorCypher Retriever
  └ Text2Cypher Retriever
@@ -165,7 +179,7 @@ Graph Visualization
 
 ---
 
-# 프로젝트 구조
+# 🗂 프로젝트 구조
 
 ```
 app
@@ -202,18 +216,10 @@ frontend
 
 ---
 
-# 설치 방법
+# ⚙️ 설치 방법
 
-## 1. 저장소 클론
 
-```
-git clone <repo_url>
-cd project
-```
-
----
-
-## 2. Python 환경 생성
+## 2️⃣ Python 환경 생성
 
 ```
 python -m venv .venv
@@ -233,7 +239,7 @@ Windows
 
 ---
 
-## 3. 패키지 설치
+## 3️⃣ 패키지 설치
 
 ```
 pip install -r requirements.txt
@@ -241,7 +247,7 @@ pip install -r requirements.txt
 
 ---
 
-# 환경 설정
+# 🔑 환경 설정
 
 프로젝트 루트에 `.env` 파일 생성
 
@@ -257,28 +263,15 @@ VLLM_BASE_URL=http://localhost:8001/v1
 
 ---
 
-# Neo4j 실행
+# 🕸 Neo4j Sandbox 사용
 
-Docker 사용 권장
+Neo4j Sandbox
 
-```
-docker run \
--p7474:7474 -p7687:7687 \
--e NEO4J_AUTH=neo4j/password \
-neo4j
-```
-
-접속
-
-```
-http://localhost:7474
-```
+https://sandbox.neo4j.com/
 
 ---
 
-# 그래프 데이터 구축
-
-JSON 데이터를 Neo4j 그래프로 변환합니다.
+# 📊 그래프 데이터 구축
 
 ```
 python -m app.db.build_graph
@@ -295,9 +288,7 @@ Embedding 생성
 
 ---
 
-# vLLM 서버 실행
-
-파인튜닝 모델 서빙
+# 🚀 vLLM 서버 실행
 
 ```
 python -m vllm.entrypoints.openai.api_server \
@@ -307,13 +298,13 @@ python -m vllm.entrypoints.openai.api_server \
 
 ---
 
-# 서버 실행
+# 🖥 서버 실행
 
 ```
 uvicorn app.server:app --reload
 ```
 
-서버 접속
+접속
 
 ```
 http://localhost:8000
@@ -321,9 +312,7 @@ http://localhost:8000
 
 ---
 
-# 사용 예시
-
-질문 예시
+# 💬 사용 예시
 
 ```
 제재를 가장 많이 받은 기관은 어디인가?
@@ -339,9 +328,7 @@ http://localhost:8000
 
 ---
 
-# 디버그 로그
-
-Retriever 동작 확인
+# 🔎 디버그 로그
 
 ```
 ========== RETRIEVAL DEBUG ==========
@@ -353,49 +340,86 @@ Docs: 5
 
 ---
 
-# 기술 스택
+# 🧠 모델 파인튜닝
+
+본 프로젝트에서는 **RAG 스타일 데이터셋을 사용하여 LLM을 파인튜닝**했습니다.
+
+데이터셋
+
+```
+Finance-Law-merge-rag-dataset
+```
+
+구조
+
+```
+Question
+Search Results
+Answer (with citation)
+```
+
+모델
+
+```
+Qwen2-7B-Instruct
+```
+
+파인튜닝 방식
+
+```
+Instruction Tuning
+RAG-style supervision
+Citation learning
+```
+
+모델 저장소
+
+https://huggingface.co/HJUNN/qwen2-7b-rag-ko-checkpoint-813
+
+---
+
+# 🛠 기술 스택
 
 ### Backend
 
-* Python
-* FastAPI
-* Neo4j
-* Neo4j GraphRAG
+- Python
+- FastAPI
+- Neo4j
+- Neo4j GraphRAG
 
 ### AI / LLM
 
-* Qwen2-7B-Instruct
-* Transformers
-* vLLM
+- Qwen2 7B Finetuned
+- Transformers
+- vLLM
 
 ### Retrieval
 
-* Vector Search
-* Graph Search
-* Cypher Query
+- Vector Search
+- Graph Search
+- Cypher Query
 
 ### Frontend
 
-* HTML
-* vis-network
+- HTML
+- vis-network
 
 ---
 
-# 향후 개선 계획
+# 🔮 향후 개선 계획
 
-* Tool Router 모델 파인튜닝
-* Multi-hop Graph Reasoning
-* Retrieval reranking
-* Graph path explanation
-
+- Tool Router 모델 파인튜닝
+- Multi-hop Graph Reasoning
+- Retrieval reranking
+- Graph reasoning path 설명
 
 ---
 
-# 참고
+# 📚 참고
 
 본 프로젝트는 다음 기술들을 기반으로 합니다.
 
-* GraphRAG
-* Neo4j
-* Retrieval-Augmented Generation
-* Agentic Retrieval
+- GraphRAG
+- Neo4j
+- Retrieval-Augmented Generation
+- Agentic Retrieval
