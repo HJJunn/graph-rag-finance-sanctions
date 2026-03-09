@@ -364,7 +364,7 @@ Docs: 5
 
 ### AI / LLM
 
-* Qwen2 7B Finetuned
+* Qwen2-7B-Instruct
 * Transformers
 * vLLM
 
@@ -387,13 +387,7 @@ Docs: 5
 * Multi-hop Graph Reasoning
 * Retrieval reranking
 * Graph path explanation
-* Streaming LLM 응답
 
----
-
-# 라이선스
-
-MIT License
 
 ---
 
