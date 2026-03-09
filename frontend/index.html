@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+<meta charset="UTF-8">
+<title>GraphRAG Demo</title>
+
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="left">
+
+        <h1>GraphRAG Demo</h1>
+
+        <textarea id="question" placeholder="질문을 입력하세요"></textarea>
+
+        <button onclick="askQuestion()">검색</button>
+
+        <div class="answer-box">
+
+            <h3>Answer</h3>
+
+            <div id="answer"></div>
+
+        </div>
+
+    </div>
+
+
+    <div class="right">
+
+        <div id="network"></div>
+
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
