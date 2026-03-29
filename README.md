@@ -4,7 +4,7 @@
 
 Neo4j 그래프 데이터베이스를 활용하여 금융 제재 데이터를 구조화하고, 다양한 Retriever를 결합한 **Agentic Retrieval 구조**를 통해 사용자 질문에 맞는 검색 전략을 자동으로 선택합니다.
 
-검색된 결과는 **금융-법률 관련 RAG 학습 데이터를 파인튜닝된 한국어 LLM**을 통해 최종 답변을 생성하며, 답변에는 **근거 문서 citation(`[[ref]]`)**이 포함됩니다.
+검색된 결과는 **금융-법률 관련 RAG 학습 데이터를 파인튜닝한 LLM**을 통해 최종 답변을 생성하며, 답변에는 근거 문서 citation(`[[ref]]`)이 포함됩니다.
 
 또한 검색 결과에 사용된 **그래프 노드들을 시각적으로 확인할 수 있는 인터페이스**도 제공합니다.
 
@@ -90,10 +90,23 @@ Rewrite →
 
 검색된 결과는 **파인튜닝된 한국어 LLM**을 통해 최종 답변을 생성합니다.
 
+데이터셋 구축
+1. 네거티브 데이터 선정
+2. 기계독해 질문을 그대로 사용하는 데이터
+3. 넓은 질문 데이터
+4. 질문을 명사구로 패러프레이징한 데이터
+5. 질문에 대한 답변이 없는 데이터
+6. 여러 문서를 기반으로 한 데이터
+   
 사용 모델
 
 ```
-HJUNN/qwen2-7b-rag-ko-checkpoint-813
+Qwen2.5-7B-Instruct 
+```
+파인튜닝
+
+```
+LoRA Fine-tuning
 ```
 
 모델 서빙
@@ -109,6 +122,13 @@ vLLM
 
 해당 위반은 투자자 보호 규정 위반에 해당하며 관련 법규는 금융투자업 규정 제4-20조입니다. [[ref2]]
 ```
+모델 저장소
+
+https://huggingface.co/HJUNN/qwen2-7b-rag-ko-checkpoint-813
+
+데이터셋 저장소
+
+https://huggingface.co/datasets/HJUNN/Finance-Law-merge-rag-dataset
 
 ---
 
@@ -125,6 +145,7 @@ vLLM
 
 - Hallucination 최소화
 - 근거 기반 답변 제공
+- 다양한 질문 대응 
 
 이 가능합니다.
 
@@ -179,67 +200,11 @@ Graph Visualization
 
 ---
 
-# 🗂 프로젝트 구조
-
-```
-app
- ├ config.py
-
- ├ db
- │   ├ neo4j_driver.py
- │   ├ neo4j_db.py
- │   └ build_graph.py
-
- ├ llm
- │   └ openai_llm.py
-
- ├ retrievers
- │   └ build_retrievers.py
-
- ├ services
- │   └ rag_pipeline.py
-
- ├ utils
- │   └ citation_utils.py
-
- ├ memory
- │   └ conversation_memory.py
-
- ├ query
- │   └ query_rewriter.py
-
- └ server.py
-
-frontend
- └ index.html
-```
-
----
 
 # ⚙️ 설치 방법
 
 
-## 2️⃣ Python 환경 생성
-
-```
-python -m venv .venv
-```
-
-Mac / Linux
-
-```
-source .venv/bin/activate
-```
-
-Windows
-
-```
-.venv\Scripts\activate
-```
-
----
-
-## 3️⃣ 패키지 설치
+## 1️⃣ 설치
 
 ```
 pip install -r requirements.txt
@@ -247,70 +212,52 @@ pip install -r requirements.txt
 
 ---
 
-# 🔑 환경 설정
-
-프로젝트 루트에 `.env` 파일 생성
+## 2️⃣ 환경 변수
 
 ```
-OPENAI_API_KEY=your_openai_key
-
-NEO4J_URI=bolt://localhost:7687
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=password
-
+OPENAI_API_KEY=...
+NEO4J_URI=...
+NEO4J_USER=...
+NEO4J_PASSWORD=...
 VLLM_BASE_URL=http://localhost:8001/v1
 ```
 
 ---
 
-# 🕸 Neo4j Sandbox 사용
+## 3️⃣ Neo4j Sandbox
 
-Neo4j Sandbox
+👉 https://sandbox.neo4j.com/
 
-https://sandbox.neo4j.com/
+👉 https://11d8249166e786c08fb23b60ba838d85.neo4jsandbox.com/browser/
 
 ---
 
-# 📊 그래프 데이터 구축
+## 4️⃣ 그래프 구축
 
 ```
 python -m app.db.build_graph
 ```
 
-실행 과정
-
-```
-DB 초기화
-Constraint 생성
-Graph 생성
-Embedding 생성
-```
-
 ---
 
-# 🚀 vLLM 서버 실행
+## 5️⃣ vLLM 실행
 
 ```
-python -m vllm.entrypoints.openai.api_server \
---model HJUNN/qwen2-7b-rag-ko-checkpoint-813 \
+python -m vllm.entrypoints.openai.api_server \\
+--model HJUNN/qwen2-7b-rag-ko-checkpoint-813 \\
 --port 8001
 ```
 
 ---
 
-# 🖥 서버 실행
+## 6️⃣ 서버 실행
 
 ```
 uvicorn app.server:app --reload
 ```
 
-접속
-
-```
-http://localhost:8000
-```
-
 ---
+
 
 # 💬 사용 예시
 
@@ -329,74 +276,15 @@ http://localhost:8000
 
 ---
 
-# 🧠 모델 파인튜닝
-
-본 프로젝트에서는 **RAG 스타일 데이터셋을 사용하여 LLM을 파인튜닝**했습니다.
-
-데이터셋
-
-```
-Finance-Law-merge-rag-dataset
-```
-
-구조
-
-```
-Question
-Search Results
-Answer (with citation)
-```
-
-모델
-
-```
-Qwen2-7B-Instruct
-```
-
-파인튜닝 방식
-
-```
-Instruction Tuning
-RAG-style supervision
-Citation learning
-```
-
-모델 저장소
-
-https://huggingface.co/HJUNN/qwen2-7b-rag-ko-checkpoint-813
-
-데이터셋 저장소
-
-https://huggingface.co/datasets/HJUNN/Finance-Law-merge-rag-dataset
----
 
 # 🛠 기술 스택
 
-### Backend
-
 - Python
 - FastAPI
-- Neo4j
 - Neo4j GraphRAG
-
-### AI / LLM
-
-- Qwen2 7B Finetuned
+- LoRA Fine-tuning
 - Transformers
 - vLLM
-
-### Retrieval
-
-- Vector Search
-- Graph Search
-- Cypher Query
-
-### Frontend
-
-- HTML
-- vis-network
-
----
 
 # 🔮 향후 개선 계획
 
@@ -407,11 +295,3 @@ https://huggingface.co/datasets/HJUNN/Finance-Law-merge-rag-dataset
 
 ---
 
-# 📚 참고
-
-본 프로젝트는 다음 기술들을 기반으로 합니다.
-
-- GraphRAG
-- Neo4j
-- Retrieval-Augmented Generation
-- Agentic Retrieval
