@@ -11,4 +11,4 @@ NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 
 VECTOR_INDEX_NAME = "violation_vector_index"
 
-HF_MODEL_ID = "HJUNN/qwen2-7b-rag-ko-checkpoint-813"
+

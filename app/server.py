@@ -55,6 +55,7 @@ class QueryResponse(BaseModel):
 
     answer: str
     rewritten_question: str
+    normalized_question: str = ""
     used_nodes: list[str]
     used_edges: list[str]
     retriever_used: str
@@ -63,7 +64,7 @@ class QueryResponse(BaseModel):
 # --------------------------------------------------
 # Query API
 # --------------------------------------------------
-@app.post("/query")
+@app.post("/query", response_model=QueryResponse)
 def query_graph(req: QueryRequest):
     try:
         memory = get_memory(req.user_id)
@@ -132,20 +133,21 @@ def get_graph():
 
         edge_result = session.run("""
         MATCH (a)-[r]->(b)
-        RETURN elementId(a) as source,
-               elementId(b) as target,
-               type(r) as relationship
+        RETURN elementId(r) as id,
+            elementId(a) as source,
+            elementId(b) as target,
+            type(r) as relationship
         LIMIT 1000
         """)
 
         for r in edge_result:
 
             edges.append({
-                "id": f"{r['source']}-{r['target']}-{r['relationship']}",
-                "source": r["source"],
-                "target": r["target"],
-                "relationship": r["relationship"]
-            })
+            "id": r["id"],
+            "source": r["source"],
+            "target": r["target"],
+            "relationship": r["relationship"]
+        })
 
     return {"nodes": nodes, "edges": edges}
 
