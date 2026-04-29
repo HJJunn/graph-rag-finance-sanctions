@@ -8,7 +8,6 @@ class OpenAIChatLLM:
         self.model = model
 
     def chat(self, messages):
-
         response = self.client.chat.completions.create(
             model=self.model,
             messages=messages,
@@ -20,20 +19,16 @@ class OpenAIChatLLM:
                 "content": response.choices[0].message.content
             }
         }
+
+    # ✅ messages 기반 호출 (retriever 호환)
+    def generate(self, messages):
+        return self.chat(messages)["message"]["content"]
+
+    # ✅ prompt 기반 호출 (rewrite용)
     def invoke(self, prompt: str):
+        messages = [{"role": "user", "content": prompt}]
+        return self.generate(messages)
 
-        messages = [
-            {"role": "user", "content": prompt}
-        ]
-
-        result = self.chat(messages)
-
-        return result["message"]["content"]
-    
+    # ✅ shortcut
     def __call__(self, prompt):
-
-        result = self.chat(
-            [{"role": "user", "content": prompt}]
-        )
-
-        return result["message"]["content"]
+        return self.invoke(prompt)

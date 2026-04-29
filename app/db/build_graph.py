@@ -8,7 +8,7 @@ from app.db.neo4j_db import (
     create_graph_nodes
 )
 
-from app.retrievers.build_embeddings import build_violation_embeddings
+from app.db.build_embeddings import build_violation_embeddings
 
 
 JSON_PATH = "refined_fss_sanctions_data.json"

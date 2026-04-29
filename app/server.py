@@ -63,19 +63,33 @@ class QueryResponse(BaseModel):
 # --------------------------------------------------
 # Query API
 # --------------------------------------------------
-
-@app.post("/query", response_model=QueryResponse)
+@app.post("/query")
 def query_graph(req: QueryRequest):
+    try:
+        memory = get_memory(req.user_id)
 
-    memory = get_memory(req.user_id)
+        result = pipeline.run(
+            question=req.question,
+            user_id=req.user_id,
+            memory=memory
+        )
 
-    result = pipeline.run(
-        question=req.question,
-        user_id=req.user_id,
-        memory=memory
-    )
+        print("PIPELINE RESULT:", result)
+        print("RESULT TYPE:", type(result))
 
-    return QueryResponse(**result)
+        return result
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+
+        return {
+            "answer": f"서버 내부 오류: {repr(e)}",
+            "rewritten_question": "",
+            "used_nodes": [],
+            "used_edges": [],
+            "retriever_used": "error"
+        }
 
 
 # --------------------------------------------------

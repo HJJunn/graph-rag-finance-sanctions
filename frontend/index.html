@@ -1,48 +1,540 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
 <meta charset="UTF-8">
-<title>GraphRAG Demo</title>
+<title>금융 제재 GraphRAG 분석 시스템</title>
 
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-<link rel="stylesheet" href="style.css">
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Pretendard", "Segoe UI", sans-serif;
+    background: #EEF2F7;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+    padding: 20px;
+    gap: 20px;
+}
+
+.panel {
+    background: #FFFFFF;
+    border: 1px solid #D8E0EE;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(10, 42, 102, 0.08);
+    overflow: hidden;
+}
+
+.left {
+    width: 430px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.right {
+    flex: 1;
+    position: relative;
+    padding: 14px;
+}
+
+.brand {
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+    border-bottom: 2px solid #0A2A66;
+}
+
+h1 {
+    font-size: 23px;
+    color: #0A2A66;
+    margin: 0 0 6px 0;
+    font-weight: 800;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #667085;
+}
+
+textarea {
+    width: 100%;
+    height: 95px;
+    padding: 13px;
+    border-radius: 10px;
+    border: 1px solid #C9D4E5;
+    font-size: 14px;
+    resize: vertical;
+    outline: none;
+    background: #FBFCFF;
+}
+
+textarea:focus {
+    border-color: #1E5EFF;
+    box-shadow: 0 0 0 3px rgba(30, 94, 255, 0.12);
+}
+
+button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 12px;
+    background: #0A2A66;
+    color: white;
+    border: 1px solid #0A2A66;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #123D8A;
+    transform: translateY(-1px);
+}
+
+.example {
+    margin-top: 18px;
+    padding: 14px;
+    background: #F4F7FF;
+    border: 1px solid #D8E0EE;
+    border-radius: 12px;
+}
+
+.example b {
+    color: #0A2A66;
+    font-size: 14px;
+}
+
+.example div {
+    padding: 8px 9px;
+    margin-top: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 8px;
+    color: #344054;
+}
+
+.example div:hover {
+    background: #E4ECFF;
+    color: #0A2A66;
+}
+
+.answer-box {
+    margin-top: 20px;
+    padding: 16px;
+    background: #FFFFFF;
+    border: 1px solid #D8E0EE;
+    border-left: 5px solid #1E5EFF;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(10, 42, 102, 0.05);
+    line-height: 1.65;
+    font-size: 14px;
+    color: #1F2937;
+}
+
+#network {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #D8E0EE;
+    border-radius: 12px;
+    background: #FAFBFF;
+}
+
+.graph-title {
+    position: absolute;
+    top: 28px;
+    left: 32px;
+    z-index: 10;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid #D8E0EE;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #0A2A66;
+    font-weight: 700;
+}
+
+/* 노드 정보 카드 */
+.node-info-panel {
+    position: absolute;
+    left: 32px;
+    bottom: 28px;
+    width: 360px;
+    max-height: 320px;
+    overflow-y: auto;
+    background: rgba(255,255,255,0.98);
+    border: 1px solid #D8E0EE;
+    border-radius: 14px;
+    box-shadow: 0 10px 28px rgba(10, 42, 102, 0.16);
+    padding: 16px;
+    z-index: 20;
+    display: none;
+}
+
+.node-info-panel.active {
+    display: block;
+}
+
+.node-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #0A2A66;
+}
+
+.node-info-title {
+    font-weight: 800;
+    color: #0A2A66;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.node-info-close {
+    cursor: pointer;
+    color: #667085;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.node-info-close:hover {
+    color: #0A2A66;
+}
+
+.node-info-row {
+    margin-bottom: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.node-info-key {
+    display: inline-block;
+    min-width: 86px;
+    font-weight: 700;
+    color: #344054;
+}
+
+.node-info-value {
+    color: #1F2937;
+    word-break: break-word;
+}
+
+.node-info-badge {
+    display: inline-block;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #EEF3FF;
+    color: #0A2A66;
+    font-size: 12px;
+    font-weight: 700;
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-    <div class="left">
+<div class="left panel">
 
-        <h1>GraphRAG Demo</h1>
+<div class="brand">
+    <h1>📊 금융 제재 분석 AI</h1>
+    <div class="subtitle">GraphRAG 기반 금융 규제 분석 시스템</div>
+</div>
 
-        <textarea id="question" placeholder="질문을 입력하세요"></textarea>
+<textarea id="question" placeholder="질문을 입력하세요"></textarea>
 
-        <button onclick="askQuestion()">검색</button>
+<button onclick="askQuestion()">🔍 분석하기</button>
 
-        <div class="answer-box">
-
-            <h3>Answer</h3>
-
-            <div id="answer"></div>
-
-        </div>
-
+<div class="example">
+    <b>💡 예시 질문</b>
+    <div onclick="setQ('한국투자증권 제재 내역 알려줘')">
+        • 한국투자증권 제재 내역 알려줘
     </div>
-
-
-    <div class="right">
-
-        <div id="network"></div>
-
+    <div onclick="setQ('녹취 의무 위반 사례 알려줘')">
+        • 녹취 의무 위반 사례 알려줘
     </div>
+    <div onclick="setQ('제재를 가장 많이 받은 기관은?')">
+        • 제재를 가장 많이 받은 기관은?
+    </div>
+</div>
+
+<div id="answerBox" class="answer-box" style="display:none">
+    <div id="answer"></div>
+</div>
 
 </div>
 
-<script src="app.js"></script>
+<div class="right panel">
+    <div class="graph-title">Neo4j 금융 제재 그래프</div>
+    <div id="network"></div>
+
+    <div id="nodeInfoPanel" class="node-info-panel">
+        <div class="node-info-header">
+            <div id="nodeInfoTitle" class="node-info-title">노드 정보</div>
+            <div class="node-info-close" onclick="closeNodeInfo()">×</div>
+        </div>
+        <div id="nodeInfoContent"></div>
+    </div>
+</div>
+
+</div>
+
+<script>
+let network
+let nodes
+let edges
+
+let allNodes = []
+let allEdges = []
+
+window.onload = async function(){
+    await loadGraph()
+}
+
+async function loadGraph(){
+
+    const res = await fetch("/graph")
+    const data = await res.json()
+
+    allNodes = data.nodes
+    allEdges = data.edges
+
+    nodes = new vis.DataSet(
+        allNodes.map(n => ({
+            id: n.id,
+            label: n.label,
+            title: makeTooltip(n),
+            shape: "dot",
+            size: 15,
+            color: getColor(n.label),
+            properties: n.properties || {}
+        }))
+    )
+
+    edges = new vis.DataSet(
+        allEdges.map(e => ({
+            id: e.id,
+            from: e.source,
+            to: e.target,
+            arrows: "to",
+            color: "#B8C2D6"
+        }))
+    )
+
+    network = new vis.Network(
+        document.getElementById("network"),
+        {nodes: nodes, edges: edges},
+        {
+            physics: true,
+            interaction: {
+                hover: true,
+                tooltipDelay: 120
+            },
+            nodes: {
+                borderWidth: 2,
+                font: { size: 12, color: "#1F2937" }
+            },
+            edges: {
+                smooth: true,
+                width: 1.4
+            }
+        }
+    )
+
+    network.on("click", function(params){
+        if(params.nodes.length > 0){
+            showNodeInfo(params.nodes[0])
+        } else {
+            closeNodeInfo()
+        }
+    })
+
+    network.on("hoverNode", function(params){
+        showNodeInfo(params.node)
+    })
+}
+
+async function askQuestion(){
+
+    const q = document.getElementById("question").value.trim()
+
+    if(!q){
+        alert("질문 입력")
+        return
+    }
+
+    const res = await fetch("/query",{
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            user_id: "test_user",
+            question: q
+        })
+    })
+
+    const data = await res.json()
+
+    if(!data.answer){
+        alert("에러 발생")
+        console.log(data)
+        return
+    }
+
+    document.getElementById("answerBox").style.display = "block"
+    document.getElementById("answer").innerHTML = marked.parse(data.answer)
+
+    highlightGraph(data.used_nodes || [])
+}
+
+function setQ(q){
+    document.getElementById("question").value = q
+}
+
+function getColor(label){
+    const map = {
+        Institution: "#1E5EFF",
+        Case: "#00B894",
+        ViolationCase: "#FDCB6E",
+        Law: "#6C5CE7",
+        Sanction: "#E17055"
+    }
+    return map[label] || "#D0D5DD"
+}
+
+function highlightGraph(nodeIds){
+
+    nodes.forEach(n => {
+        const nodeData = allNodes.find(x => x.id === n.id)
+        nodes.update({
+            id: n.id,
+            color: getColor(nodeData?.label),
+            size: 15
+        })
+    })
+
+    nodeIds.forEach(id => {
+        nodes.update({
+            id: id,
+            color: {
+                background: "#E03131",
+                border: "#7F1D1D"
+            },
+            size: 28
+        })
+    })
+}
+
+function showNodeInfo(nodeId){
+    const nodeData = allNodes.find(n => n.id === nodeId)
+    if(!nodeData) return
+
+    const panel = document.getElementById("nodeInfoPanel")
+    const title = document.getElementById("nodeInfoTitle")
+    const content = document.getElementById("nodeInfoContent")
+
+    title.innerHTML = `${getNodeLabelKorean(nodeData.label)}`
+    
+    let html = `
+        <div class="node-info-badge">${nodeData.label}</div>
+        <div class="node-info-row">
+            <span class="node-info-key">표시명</span>
+            <span class="node-info-value">${escapeHtml(nodeData.title || "-")}</span>
+        </div>
+    `
+
+    const props = nodeData.properties || {}
+
+    for(const [key, value] of Object.entries(props)){
+        if(key === "embedding" || key === "embeddings") continue
+        if(value === null || value === undefined || value === "") continue
+
+        html += `
+            <div class="node-info-row">
+                <span class="node-info-key">${escapeHtml(key)}</span>
+                <span class="node-info-value">${escapeHtml(formatValue(value))}</span>
+            </div>
+        `
+    }
+
+    content.innerHTML = html
+    panel.classList.add("active")
+}
+
+function closeNodeInfo(){
+    document.getElementById("nodeInfoPanel").classList.remove("active")
+}
+
+function getNodeLabelKorean(label){
+    const map = {
+        Institution: "기관 정보",
+        Case: "제재 사건 정보",
+        ViolationCase: "위반 사례 정보",
+        Law: "관련 법규 정보",
+        Sanction: "제재 조치 정보"
+    }
+    return map[label] || "노드 정보"
+}
+
+function formatValue(value){
+    if(Array.isArray(value)){
+        return value.join(", ")
+    }
+
+    if(typeof value === "object"){
+        return JSON.stringify(value)
+    }
+
+    const text = String(value)
+
+    if(text.length > 180){
+        return text.substring(0, 180) + "..."
+    }
+
+    return text
+}
+
+function makeTooltip(node){
+    const props = node.properties || {}
+    const title = node.title || node.label
+
+    let lines = [
+        `${getNodeLabelKorean(node.label)}`,
+        `표시명: ${title}`
+    ]
+
+    const preferredKeys = ["name", "case_id", "action_date", "violation_name", "legal_basis", "target", "content"]
+
+    preferredKeys.forEach(key => {
+        if(props[key]){
+            lines.push(`${key}: ${formatValue(props[key])}`)
+        }
+    })
+
+    return lines.join("\n")
+}
+
+function escapeHtml(value){
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;")
+}
+</script>
 
 </body>
 </html>
